@@ -6,40 +6,48 @@ from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import NoSuchElementException
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
-import os
-from dotenv import load_dotenv
 import time
+import csv
 
-load_dotenv()
 
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-driver.get("https://quotes.toscrape.com/")
+driver.get("https://nl.indeed.com/")
 
-login = driver.find_element(By.LINK_TEXT, "Login")
-login.click()
-username = os.getenv('USERNAME')
-password = os.getenv('PASSWORD')
-username_box = driver.find_element(By.ID, "username")
-password_box = driver.find_element(By.ID, "password")
-submit_button = driver.find_element(By.XPATH, "//input[@type='submit']")
-username_box.send_keys(username)
-password_box.send_keys(password)
-submit_button.click()
-#logged in
+time.sleep(1)
+waarInput = driver.find_element(By.ID, "text-input-where")
+submitButton = driver.find_element(By.XPATH, "//button[@type='submit']")
+waarInput.send_keys("Harderwijk")
+submitButton.click()
+#go to harderwijk page
+time.sleep(1)
+popupClose = driver.find_element(By.CSS_SELECTOR, ".icl-CloseButton.icl-Card-close")
+popupClose.click()
+time.sleep(1)
+filterRadius = driver.find_element(By.XPATH, "//button[@id='filter-radius']")
+filterRadius.click()
+zelfdePlaats = driver.find_element(By.LINK_TEXT, "Zelfde plaats")
+zelfdePlaats.click()
+time.sleep(2)
+popupClose2 = driver.find_element(By.XPATH, "//button[@aria-label='sluiten']")
+popupClose2.click()
+time.sleep(1)
+cookieClose = driver.find_element(By.ID, "onetrust-reject-all-handler")
+cookieClose.click()
+file = open("output.csv", "w", newline='', encoding='utf-8')
+writer = csv.writer(file)
+writer.writerow(["COMPANIES"])
 while True:
-    quotes = driver.find_elements(By.CLASS_NAME, "quote")
-    for quote in quotes:
-        author = quote.find_element(By.CLASS_NAME, "author")
-        keywords = quote.find_element(By.CLASS_NAME, "keywords")
-        tags = keywords.get_attribute("content")
-        print(author.text)
-        print(tags)
-
+    companies = driver.find_elements(By.XPATH, "//*[@data-testid='company-name']")
+    for company in companies:
+        print(company.text)
+        writer.writerow([company.text])
     try:
-        driver.find_element(By.PARTIAL_LINK_TEXT, "Next").click()
+        nextPage = driver.find_element(By.XPATH, "//a[@data-testid='pagination-page-next']")
+        nextPage.click()
     except NoSuchElementException:
         break
-#edit
+file.close()
+
 
 
 
