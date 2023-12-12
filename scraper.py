@@ -39,7 +39,7 @@ while True:
         driver.find_element(By.PARTIAL_LINK_TEXT, "Next").click()
     except NoSuchElementException:
         break
-
+#edit
 
 
 
